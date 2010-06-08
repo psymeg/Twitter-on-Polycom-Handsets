@@ -1,0 +1,28 @@
+This little script was somethng I wrote for work last year. You are welcome to use it.
+
+Here is the article I wrote up about it (it may have some pointers), or you can contact me github...
+
+From the IT workbench: Using the Twitter API to display tweets on Office Phones
+Simon Gibson
+Twitter was launched in 2006 with the idea that small groups could be kept up to date with what an individual was doing. So for example, if you were walking down the street and saw a cool new pizza place, you could send a short message to all your friends and if they were free, they could come and join you.
+At Denphone we are currently working on a presence solution, and while working on that, one thing that popped up as an idea was getting twitter messages to display on the screens of our office phones. With a private group on twitter, it would be possible to use this as a department or company wide broadcast system; especially in conjunction with a BCP system.
+The Polycom handsets that we use and recommend, include a number of models that support an xml browser. We have tested the twitter message display on the following models: Polycom Soundpoint 450, 550, 601, and 650. We haven't yet tested this system on Cisco VoIP phones, however it should work in the same way.
+Setting up Twitter Message Display
+
+There are three parts to setting up Twitter message display on Polycom phones. First you need to use the Twitter API to draw down the tweets and put them into an XML format that the phones can understand, then you need a web server for the phones to pull the messages from, and finally you need to set up the phones to poll for the messages. Setting up a webserver is a pretty common task, so we wont look at that here - if you need, you can refer to: Ubuntu LAMP Server - Setup Guide with Desktop GUI or for OS X: How to setup Apache, PHP, & MySQL on Mac OS X 10.5 (Leopard).
+The Twitter API
+
+The Twitter API provides developers with a simple, easy to work with way to access what is happening on Twitter. Information about the twitter API can be found here: http://apiwiki.twitter.com/. A great number of developers have produced wrappers for interacting with the api in a large number of languages including ruby, python, php and many more. I just wanted to keep things simple so I chose one of the php wrappers. It was created by Ashley from papermashup.com and uses curl, php and xml. You can grab the original code here: http://papermashup.com/using-the-twitter-api/.
+I simplified Ashley's code quite a bit - the Polycom phones only support either monochrome, or 2 or 4 bit greyscale images, and don't have much screen space so I didn't want to display avatar pictures.
+Here is the hacked down code: http://www.denphone.com/files/code/twitter-polycom.txt.
+Polycom Phone Settings
+
+Polycom handsets, being IP phones - with their own processor - are very powerful machines with a huge range of options available to meet just about any possible need. Polycom also offer great resources for developers, and to get twitter displaying on the phones, I used the "Web Application Developer's Guide for the Polycom Soundpoint IP/ Soundstation IP Family (SIP 3.1)" which can be downloaded here.
+To set up the phones to receive the twitter feeds you need to edit either the sip.cfg file (normally in the /etc/asterisk folder) or the individual phoneXXX.cfg files. Editing the sip.cfg file means that all phones will use the same feed, editing the individual files means you can assign different groups within an organization to their own specific feed.
+In either of the files, add a microbrowser section with . Then below that add your webserver path to the main page you want to serve by setting mb.idleDisplay.home, in our case this was: mb.idleDisplay.home=http://192.168.1.44/polycom/twitter.php.
+Other options you can set include:
+Http proxy - mb.proxy=192.168.1.1:8080
+Home page - mb.main.home=http://www.denphone.com/
+Page refresh - mb.idleDisplay.refresh=10
+More commands can be found in the developers guide on pages 2-36 to 2-38. One thing to note regarding page refresh - that sets the number of seconds before the idle page is refreshed - is to be aware of any limitations to the number of API calls you can do per hour or day. Twitter limits api calls to 100 per hour, so setting it to refresh to say every 30 seconds means that the feed will fail to display once you reach the 100 call limit.
+Basically any feed - not just twitter - can be supported. So if your users need stock prices, echange rates or even cricket scores showing up on their phones, then that can be quite easily achieved.
